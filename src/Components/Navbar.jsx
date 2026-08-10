@@ -37,30 +37,46 @@ function Navbar() {
   const navigate = useNavigate()
   const { isAuthenticated, isDriver, user, logout } = useContext(AuthContext)
 
-  // The menu remembers which route it was opened on. Comparing that to the
-  // current route closes it automatically after navigation, without an
+  // Both menus remember which route they were opened on. Comparing that to
+  // the current route closes them automatically after navigation, without an
   // effect that calls setState (which would cause a cascading render).
   const [menuState, setMenuState] = useState({ open: false, path: location.pathname })
   const menuOpen = menuState.open && menuState.path === location.pathname
   const menuRef = useRef(null)
 
+  // The mobile hamburger collapse. This is driven by React rather than
+  // Bootstrap's `data-bs-toggle="collapse"` data API: that plugin keeps the
+  // open/closed state inside Bootstrap's own JS, so nothing on the React side
+  // could close it and it stayed open until you clicked the button again.
+  const [navState, setNavState] = useState({ open: false, path: location.pathname })
+  const navOpen = navState.open && navState.path === location.pathname
+  const navRef = useRef(null)
+
   const closeMenu = () => setMenuState({ open: false, path: location.pathname })
   const toggleMenu = () => setMenuState({ open: !menuOpen, path: location.pathname })
 
-  // Close the dropdown on outside click or Escape.
+  const closeNav = () => setNavState({ open: false, path: location.pathname })
+  const toggleNav = () => setNavState({ open: !navOpen, path: location.pathname })
+
+  // Close whichever menu is open on an outside click or Escape.
   useEffect(() => {
-    if (!menuOpen) return
+    if (!menuOpen && !navOpen) return
 
     const handlePointerDown = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuState({ open: false, path: location.pathname })
       }
+
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setNavState({ open: false, path: location.pathname })
+      }
     }
 
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setMenuState({ open: false, path: location.pathname })
-      }
+      if (event.key !== 'Escape') return
+
+      setMenuState({ open: false, path: location.pathname })
+      setNavState({ open: false, path: location.pathname })
     }
 
     document.addEventListener('mousedown', handlePointerDown)
@@ -70,7 +86,7 @@ function Navbar() {
       document.removeEventListener('mousedown', handlePointerDown)
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [menuOpen, location.pathname])
+  }, [menuOpen, navOpen, location.pathname])
 
   const scrollToSection = (event, id) => {
     event.preventDefault()
@@ -89,12 +105,13 @@ function Navbar() {
 
   const handleLogout = () => {
     closeMenu()
+    closeNav()
     logout()
     navigate('/')
   }
 
   return (
-    <nav className="navbar navbar-expand-sm sticky-top">
+    <nav className="navbar navbar-expand-sm sticky-top" ref={navRef}>
       <div className="container d-flex justify-content-between align-items-center">
 
         <Link className="navbar-brand" to="/">
@@ -102,19 +119,26 @@ function Navbar() {
           GoRide
         </Link>
 
+        {/* Bootstrap's own CSS hides this at >=576px to match navbar-expand-sm. */}
         <button
-          className="navbar-toggler d-lg-none"
+          className={`navbar-toggler ${navOpen ? '' : 'collapsed'}`}
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#collapsibleNavId"
+          onClick={toggleNav}
           aria-controls="collapsibleNavId"
+          aria-expanded={navOpen}
           aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse justify-content-between" id="collapsibleNavId">
-          <ul className="navbar-nav mx-auto gap-4">
+        <div
+          className={`collapse navbar-collapse justify-content-between ${navOpen ? 'show' : ''}`}
+          id="collapsibleNavId"
+        >
+          {/* One handler on the list closes the menu when any link inside is
+              clicked, including a link back to the page you're already on
+              (where the route never changes). */}
+          <ul className="navbar-nav mx-auto gap-4" onClick={closeNav}>
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
@@ -187,10 +211,11 @@ function Navbar() {
               )}
             </div>
           ) : (
-            <div className="d-flex gap-2 align-items-center">
+            <div className="d-flex gap-2 align-items-center" onClick={closeNav}>
               <Link to="/login" className="login-btn">Login</Link>
               <Link to="/signup" className="nav-btn">Signup</Link>
             </div>
+
           )}
         </div>
       </div>

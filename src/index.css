@@ -253,6 +253,34 @@
   box-shadow: 0 0 0 0.15rem rgba(255, 167, 38, 0.3);
 }
 
+/* The collapse is toggled by React now, not Bootstrap's JS, so Bootstrap's
+   own slide transition never runs. This restores a bit of motion when the
+   mobile menu opens. Scoped below the navbar-expand-sm breakpoint so it
+   can't animate the always-visible desktop nav. */
+@media (max-width: 575.98px) {
+  .navbar-collapse.show {
+    animation: navbar-collapse-in 0.22s ease-out;
+  }
+}
+
+@keyframes navbar-collapse-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-collapse.show {
+    animation: none;
+  }
+}
+
+
 .navbar .nav-link {
   color: var(--secondary-color);
   font-size: 0.95rem;
