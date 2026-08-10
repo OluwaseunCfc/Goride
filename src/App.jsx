@@ -3,9 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './Components/Navbar'
 import Loading from './Components/Loading'
 import Footer from './Components/Footer'
+import SplashScreen from './Components/SplashScreen'
 import { AuthProvider } from './Context/AuthContext'
-// Folder on disk is `routes` (lowercase). Windows is case-insensitive so
-// './Routes/...' worked locally, but it breaks builds on Linux hosts.
 import ProtectedRoute from './routes/ProtectedRoutes'
 
 
@@ -25,8 +24,12 @@ const BookRide = React.lazy(() => import('./Pages/BookRide'))
 function App() {
   return (
     <AuthProvider>
+      {/* Overlays the app on first load; the router keeps working underneath. */}
+      <SplashScreen />
+
       <BrowserRouter>
         <div className="d-flex flex-column min-vh-100">
+
           <Navbar />
 
           <main className="flex-grow-1">
