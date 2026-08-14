@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { FaCar } from 'react-icons/fa'
-import { LuLayoutDashboard, LuLogOut, LuUser, LuChevronDown } from 'react-icons/lu'
+import { LuLayoutDashboard, LuLogOut, LuUser, LuChevronDown, LuMenu, LuX } from 'react-icons/lu'
 import { AuthContext } from '../Context/AuthContext'
 
 /** "john.doe@mail.com" -> "JD", "Ada Lovelace" -> "AL" */
@@ -36,6 +35,7 @@ function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAuthenticated, isDriver, user, logout } = useContext(AuthContext)
+  const [scrolled, setScrolled] = useState(false)
 
   // Both menus remember which route they were opened on. Comparing that to
   // the current route closes them automatically after navigation, without an
@@ -110,16 +110,35 @@ function Navbar() {
     navigate('/')
   }
 
-  return (
-    <nav className="navbar navbar-expand-sm sticky-top" ref={navRef}>
-      <div className="container d-flex justify-content-between align-items-center">
+  // Keep navbar visible on scroll: toggle scrolled class and body padding.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-        <Link className="navbar-brand" to="/">
-          <FaCar className="logo me-1" />
-          GoRide
+  // Add a body padding helper while the fixed navbar is active on the homepage
+  useEffect(() => {
+    const bodyClass = 'has-fixed-nav'
+    // We want the homepage hero to be full-viewport beneath the transparent navbar,
+    // so only add body padding on non-home pages where the navbar shouldn't overlap content.
+    if (location.pathname !== '/') document.body.classList.add(bodyClass)
+    else document.body.classList.remove(bodyClass)
+    return () => document.body.classList.remove(bodyClass)
+  }, [location.pathname])
+
+  const bookRidePath = isAuthenticated && !isDriver ? '/book-ride' : isAuthenticated ? '/dashboard' : '/login'
+
+  return (
+    <nav className={`navbar navbar-expand-lg goride-navbar ${location.pathname === '/' ? 'navbar-home' : 'navbar-default'} ${scrolled ? 'scrolled' : ''}`} ref={navRef}>
+      <div className="container-fluid navbar-shell d-flex justify-content-between align-items-center">
+
+        <Link className="navbar-brand" to="/" aria-label="GoRide home" onClick={closeNav}>
+          <span className="brand-badge" aria-hidden="true">G</span>
+          <span className="brand-wordmark">Go<span>Ride</span></span>
         </Link>
 
-        {/* Bootstrap's own CSS hides this at >=576px to match navbar-expand-sm. */}
         <button
           className={`navbar-toggler ${navOpen ? '' : 'collapsed'}`}
           type="button"
@@ -128,7 +147,7 @@ function Navbar() {
           aria-expanded={navOpen}
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+          {navOpen ? <LuX aria-hidden="true" /> : <LuMenu aria-hidden="true" />}
         </button>
 
         <div
@@ -138,18 +157,21 @@ function Navbar() {
           {/* One handler on the list closes the menu when any link inside is
               clicked, including a link back to the page you're already on
               (where the route never changes). */}
-          <ul className="navbar-nav mx-auto gap-4" onClick={closeNav}>
+          <ul className="navbar-nav mx-auto" onClick={closeNav}>
             <li className="nav-item">
-              <Link className="nav-link" to="/">Home</Link>
+              <Link className={`nav-link ${location.pathname === '/' && !location.hash ? 'active' : ''}`} to="/">Home</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#about" onClick={(e) => scrollToSection(e, 'about')}>About</a>
+              <a className="nav-link" href="/#about" onClick={(e) => scrollToSection(e, 'about')}>About Us</a>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/contact">Contact</Link>
+              <a className="nav-link" href="/#services" onClick={(e) => scrollToSection(e, 'services')}>Services</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#testimonials" onClick={(e) => scrollToSection(e, 'testimonials')}>Testimonial</a>
+              <Link className={`nav-link ${location.pathname === '/signup' ? 'active' : ''}`} to="/signup">Become a Driver</Link>
+            </li>
+            <li className="nav-item">
+              <Link className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`} to="/contact">Contact</Link>
             </li>
             {isAuthenticated && (
               <li className="nav-item">
@@ -211,9 +233,8 @@ function Navbar() {
               )}
             </div>
           ) : (
-            <div className="d-flex gap-2 align-items-center" onClick={closeNav}>
-              <Link to="/login" className="login-btn">Login</Link>
-              <Link to="/signup" className="nav-btn">Signup</Link>
+            <div className="nav-actions" onClick={closeNav}>
+              <Link to={bookRidePath} className="nav-btn">Book a Ride</Link>
             </div>
 
           )}

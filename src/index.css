@@ -8,7 +8,7 @@
 }
 
 :root {
-  --primary-color: #FFA726;
+  --primary-color: #FF7A00;
   --secondary-color: #111111;
   --neutral-color: #FFFFFF;
   --accent-color: #F5F5F5;
@@ -215,32 +215,44 @@
   background-color: var(--neutral-color);
   color: var(--secondary-color);
   box-shadow: 0 2px 24px rgba(17, 17, 17, 0.08);
-  padding: 0.75rem 0;
+  height: 68px;
+  padding: 0;
 }
 
 .navbar .navbar-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--neutral-color);
-  background-color: var(--primary-color);
+  gap: 0.75rem;
+  color: var(--secondary-color);
+  background-color: transparent;
   font-family: var(--font-family);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  padding: 0.5rem 1.1rem;
-  border-radius: 999px;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
   letter-spacing: 0.02em;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-.navbar .navbar-brand:hover {
+.brand-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--primary-color);
   color: var(--neutral-color);
-  background-color: var(--secondary-color);
-  transform: translateY(-1px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
 }
 
-.navbar .navbar-brand .logo {
-  color: var(--neutral-color);
+.brand-wordmark {
+  color: inherit;
+  font-weight: 800;
+}
+
+.brand-wordmark span {
+  color: var(--primary-color);
 }
 
 .navbar-toggler {
@@ -309,6 +321,88 @@
 .navbar .nav-link:hover::after {
   width: 100%;
 }
+
+/* Homepage: transparent navbar over hero */
+.navbar-home {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: transparent;
+  color: var(--neutral-color);
+  box-shadow: none;
+  padding: 1rem 0;
+  z-index: 1100;
+  transition: background-color 0.22s ease, box-shadow 0.22s ease, backdrop-filter 0.22s ease;
+}
+
+.navbar-home.scrolled {
+  background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.35));
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px) saturate(120%);
+}
+
+/* When the navbar has the scrolled state, prefer dark text for readability on the lighter translucent background */
+.navbar-home.scrolled,
+.navbar-home.scrolled .navbar-brand,
+.navbar-home.scrolled .brand-wordmark {
+  color: var(--secondary-color);
+}
+
+.navbar-home.scrolled .nav-link {
+  color: var(--secondary-color);
+}
+
+.navbar-home.scrolled .nav-link::after {
+  background-color: var(--primary-color);
+}
+
+.navbar-home.scrolled .nav-btn {
+  background-color: var(--primary-color);
+  color: var(--neutral-color);
+}
+
+.navbar-home.scrolled .navbar-toggler {
+  border-color: rgba(0,0,0,0.08);
+}
+
+.navbar-home.scrolled .navbar-toggler svg,
+.navbar-home.scrolled .navbar-toggler * {
+  color: var(--secondary-color);
+}
+
+.navbar-home .nav-link {
+  color: var(--secondary-color);
+}
+
+.navbar-home .nav-link::after {
+  background-color: var(--primary-color);
+}
+
+.navbar-home .nav-link:hover {
+  color: var(--primary-color);
+}
+
+.navbar-home .nav-btn {
+  background-color: var(--primary-color);
+  color: var(--neutral-color);
+}
+
+/* when fixed navbar is present, add top offset so content doesn't jump */
+body.has-fixed-nav {
+  padding-top: 68px;
+}
+
+.navbar-home .navbar-toggler {
+  border-color: rgba(255,255,255,0.18);
+}
+
+.navbar-home .navbar-toggler svg,
+.navbar-home .navbar-toggler * {
+  color: var(--neutral-color);
+}
+
 
 .nav-btn {
   background-color: var(--primary-color);
@@ -720,6 +814,188 @@
   padding-top: 2rem;
   border-top: 1px solid rgba(17, 17, 17, 0.08);
 }
+
+/* Hero carousel styles used by Banner.jsx */
+.hero-carousel {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: block;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.hero-slides {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 0.6s ease, transform 0.9s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.hero-slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 10%, rgba(0,0,0,0.65) 60%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-copy {
+  color: var(--neutral-color);
+  max-width: 640px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: rgba(255,167,38,0.12);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.hero-copy h1 {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  line-height: 1.02;
+  margin: 0 0 1rem 0;
+  font-weight: 800;
+  color: var(--neutral-color);
+}
+
+.hero-copy h1 span {
+  color: var(--primary-color);
+}
+
+.hero-copy p {
+  color: rgba(255,255,255,0.88);
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--primary-color);
+  color: var(--neutral-color);
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 14px 40px rgba(255,167,38,0.14);
+}
+
+.hero-dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 28px;
+  display: flex;
+  gap: 0.6rem;
+  z-index: 4;
+}
+
+.hero-dots button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hero-dots button.is-active,
+.hero-dots button:is-active {
+  background: var(--primary-color);
+}
+
+.hero-arrows {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 0.6rem;
+  z-index: 6;
+  align-items: center;
+}
+
+.hero-arrows button {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.45);
+  color: var(--neutral-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.14s ease, background-color 0.14s ease;
+}
+
+.hero-arrows button:hover {
+  transform: translateY(-3px);
+}
+
+/* Emphasize next button with brand color */
+.hero-arrows button.next {
+  background: var(--primary-color);
+  border-color: rgba(0,0,0,0.08);
+  color: var(--neutral-color);
+}
+
+/* .hero-benefits {
+  position: absolute;
+  left: 40px;
+  bottom: 28px;
+  display: flex;
+  gap: 1.25rem;
+  z-index: 5;
+  color: rgba(255,255,255,0.9);
+}
+
+.hero-benefits span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+} */
 
 .stat-item .stat-number {
   font-size: 1.6rem;
